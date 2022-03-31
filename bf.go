@@ -25,9 +25,19 @@ const (
 )
 
 type Compailer struct {
-	dataSize     int
-	fileName     string
-	instructions string
+	dataSize         int
+	fileName         string
+	instructions     string
+	removeOperations []string
+}
+
+func contains(data []string, str string) bool {
+	for _, v := range data {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }
 
 func (compailer *Compailer) setFileName(fileName string) {
@@ -36,6 +46,10 @@ func (compailer *Compailer) setFileName(fileName string) {
 
 func (compailer *Compailer) getFileName() string {
 	return compailer.fileName
+}
+
+func (compailer *Compailer) remove(code string) {
+	compailer.removeOperations = append(compailer.removeOperations, code)
 }
 
 func (compailer *Compailer) openFile(fileName string) string {
@@ -62,6 +76,9 @@ func (compailer *Compailer) compileBF(input string) (program []Instruction, err 
 	loopStack := make([]uint16, 0)
 
 	for _, c := range input {
+		if contains(compailer.removeOperations, string(c)) {
+			continue
+		}
 		switch c {
 		case '>':
 			program = append(program, Instruction{incrementDataPointer, 0})
@@ -138,6 +155,7 @@ func main() {
 
 	compailer := Compailer{dataSize: 65535}
 	instructions := compailer.openFile("hw.bf")
+
 	program, err := compailer.compileBF(instructions)
 
 	if err != nil {
